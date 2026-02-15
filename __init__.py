@@ -14,7 +14,7 @@ from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS: list[Platform] = [Platform.LOCK]
+PLATFORMS: list[Platform] = [Platform.LOCK, Platform.SENSOR]
 SCAN_INTERVAL = timedelta(seconds=30)
 
 

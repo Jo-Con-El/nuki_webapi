@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-02-15
+
+### Added
+- 🔋 Battery sensor entity for each lock
+  - Shows battery percentage (0-100%)
+  - Device class: BATTERY
+  - Includes battery critical and charging status as attributes
+  - Supports historical data with state class MEASUREMENT
+  - Automatically associated with lock device
+
+### Fixed
+- 🐛 HTTP 415 "Unsupported Media Type" error on lock/unlock/unlatch actions
+  - Removed empty `data={}` parameter from POST requests
+  - All action endpoints now work correctly
+  - Fixed in: lock(), unlock(), unlatch(), lock_n_go()
+
+### Changed
+- 📦 Added sensor platform to integration
+- 🔧 Updated manifest.json with integration_type and loggers
+
 ## [1.0.0] - 2026-02-13
 
 ### Added
@@ -52,4 +72,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Polling every 30 seconds (not real-time)
 - Requires Nuki Smart Hosting subscription for some actions
 - No webhook support (requires Advanced API)
-- Battery percentage not available (only critical/not critical)
