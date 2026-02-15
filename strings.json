@@ -1,0 +1,21 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configurar Nuki Web API",
+        "description": "Introduce tu token de API de Nuki Web. Puedes obtenerlo desde https://web.nuki.io en MENU > API.",
+        "data": {
+          "api_token": "Token de API"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Token de API inválido. Por favor, verifica tu token.",
+      "no_smartlocks": "No se encontraron cerraduras en tu cuenta.",
+      "unknown": "Error desconocido. Por favor, revisa los logs."
+    },
+    "abort": {
+      "already_configured": "Esta cuenta ya está configurada."
+    }
+  }
+}

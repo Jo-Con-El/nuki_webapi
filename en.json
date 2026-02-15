@@ -1,0 +1,21 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configure Nuki Web API",
+        "description": "Enter your Nuki Web API token. You can obtain it from https://web.nuki.io in MENU > API.",
+        "data": {
+          "api_token": "API Token"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid API token. Please verify your token.",
+      "no_smartlocks": "No smartlocks found in your account.",
+      "unknown": "Unknown error. Please check the logs."
+    },
+    "abort": {
+      "already_configured": "This account is already configured."
+    }
+  }
+}

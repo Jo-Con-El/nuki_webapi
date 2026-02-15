@@ -1,0 +1,18 @@
+# Custom services for Nuki Web API
+# Uncomment and modify as needed
+
+lock_n_go:
+  name: Lock 'n' Go
+  description: Unlocks and automatically re-locks after a period of time
+  target:
+    entity:
+      domain: lock
+      integration: nuki_webapi
+  fields:
+    unlatch:
+      name: Unlatch
+      description: Whether to fully open the door (unlatch) instead of just unlocking
+      required: false
+      default: false
+      selector:
+        boolean:
