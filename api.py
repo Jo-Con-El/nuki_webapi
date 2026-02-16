@@ -89,6 +89,11 @@ class NukiWebApiClient:
         await self._request("POST", f"/smartlock/{smartlock_id}/action/unlatch")
 
     async def lock_n_go(self, smartlock_id: int, unlatch: bool = False) -> None:
-        """Execute lock'n'go action."""
-        action = "lock-n-go-with-unlatch" if unlatch else "lock-n-go"
-        await self._request("POST", f"/smartlock/{smartlock_id}/action/{action}")
+        """Execute lock'n'go action.
+
+        Action codes:
+        4 = lock'n'go
+        5 = lock'n'go with unlatch
+        """
+        action_code = 5 if unlatch else 4
+        await self._request("POST", f"/smartlock/{smartlock_id}/action", {"action": action_code})
