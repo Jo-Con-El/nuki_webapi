@@ -4,12 +4,14 @@ Custom integration to control Nuki Smart Locks via the Nuki Web API (no Bridge o
 
 ## Features
 
-✅ Control Nuki locks via Web API  
-✅ Support for multiple locks  
-✅ Real-time status (locked/unlocked)  
-✅ Actions: lock, unlock, open (unlatch)  
-✅ Battery critical information  
-✅ UI-based configuration  
+✅ Control Nuki locks via Web API
+✅ Support for multiple locks
+✅ Real-time status (locked/unlocked)
+✅ Fast state updates after actions (immediate + 3s delayed refresh)
+✅ Actions: lock, unlock, open (unlatch)
+✅ Battery level sensor with percentage
+✅ Battery critical and charging status
+✅ UI-based configuration
 
 ## Requirements
 
@@ -70,7 +72,9 @@ The integration will automatically detect all locks associated with your account
 
 ### Created Entities
 
-For each lock, an entity `lock.nuki_lock_XXXXXX` will be created with:
+For each lock, entities will be created:
+
+**Lock Entity:** `lock.nuki_lock_XXXXXX`
 
 **States:**
 - `locked` - Locked
@@ -83,6 +87,16 @@ For each lock, an entity `lock.nuki_lock_XXXXXX` will be created with:
 - `battery_critical` - Indicates if battery is critical
 - `nuki_state` - Numeric Nuki state code
 - `nuki_state_name` - Nuki state name
+
+**Battery Sensor:** `sensor.nuki_lock_XXXXXX_battery`
+
+**Features:**
+- Shows battery percentage (0-100%)
+- Device class: BATTERY
+- Historical data enabled
+- Attributes:
+  - `battery_critical` - Boolean indicating critical battery
+  - `battery_charging` - Boolean indicating if charging (rechargeable models)
 
 ### Available Services
 
@@ -130,6 +144,8 @@ entities:
   - entity: lock.nuki_lock_12345678
     name: Front Door
     secondary_info: last-changed
+  - entity: sensor.nuki_lock_12345678_battery
+    name: Battery
 ```
 
 Or using a custom card:
@@ -141,11 +157,30 @@ name: Front Door
 fill_container: false
 ```
 
+With battery:
+
+```yaml
+type: vertical-stack
+cards:
+  - type: custom:mushroom-lock-card
+    entity: lock.nuki_lock_12345678
+    name: Front Door
+  - type: custom:mushroom-entity-card
+    entity: sensor.nuki_lock_12345678_battery
+    name: Battery
+    icon: mdi:battery
+```
+
 ## Limitations
 
-- **Polling:** The integration updates state every 30 seconds. It's not real-time (for real-time you'd need webhooks or the advanced API)
-- **Battery:** Only reports if battery is critical, not the exact percentage
+- **Polling:** The integration updates state every 30 seconds. Actions trigger immediate refresh + delayed refresh (3s) for faster response.
 - **Advanced actions:** Lock'n'Go is available in code but not exposed as a service (can be added)
+
+## Performance Notes
+
+- **State Updates:** After performing an action (lock/unlock/open), the integration refreshes immediately and again after 3 seconds to catch the final state
+- **Battery Information:** Shows percentage on newer models (Pro/Go/Ultra). On older models, estimates based on critical flag
+- **Response Time:** Lock actions return immediately; state updates happen in the background
 
 ## Troubleshooting
 

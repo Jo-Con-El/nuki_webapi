@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-02-15
+
+### Added
+- ⚡ Fast state updates after lock/unlock/open actions
+  - Immediate refresh after action
+  - Delayed refresh (3 seconds) to catch final state
+  - Non-blocking background task for delayed refresh
+  - Improved user experience with faster UI response
+
+### Changed
+- 🔄 Lock actions now trigger automatic state refresh
+- 📱 UI responds immediately after lock commands
+
 ## [1.1.0] - 2026-02-15
 
 ### Added

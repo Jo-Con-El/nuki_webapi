@@ -1,6 +1,7 @@
 """Platform for Nuki Web API lock integration."""
 from __future__ import annotations
 
+import asyncio
 import logging
 from typing import Any
 
@@ -104,19 +105,39 @@ class NukiLock(CoordinatorEntity, LockEntity):
         """Lock the device."""
         _LOGGER.debug("Locking Nuki lock %s", self._smartlock_id)
         await self._client.lock(self._smartlock_id)
+        # Immediate refresh
         await self.coordinator.async_request_refresh()
+        # Schedule a delayed refresh in the background (non-blocking)
+        # Nuki lock takes 1-3 seconds to complete the action
+        self._schedule_delayed_refresh()
 
     async def async_unlock(self, **kwargs: Any) -> None:
         """Unlock the device."""
         _LOGGER.debug("Unlocking Nuki lock %s", self._smartlock_id)
         await self._client.unlock(self._smartlock_id)
+        # Immediate refresh
         await self.coordinator.async_request_refresh()
+        # Schedule a delayed refresh in the background
+        self._schedule_delayed_refresh()
 
     async def async_open(self, **kwargs: Any) -> None:
         """Open the door latch."""
         _LOGGER.debug("Unlatching Nuki lock %s", self._smartlock_id)
         await self._client.unlatch(self._smartlock_id)
+        # Immediate refresh
         await self.coordinator.async_request_refresh()
+        # Schedule a delayed refresh in the background
+        self._schedule_delayed_refresh()
+
+    def _schedule_delayed_refresh(self) -> None:
+        """Schedule a delayed refresh to catch the final lock state."""
+        async def delayed_refresh():
+            """Wait and then refresh."""
+            await asyncio.sleep(3)
+            await self.coordinator.async_request_refresh()
+
+        # Create task in the background (non-blocking)
+        asyncio.create_task(delayed_refresh())
 
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""

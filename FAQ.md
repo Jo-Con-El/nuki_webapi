@@ -35,13 +35,29 @@ Yes, but usually not necessary. One integration can handle all your Nuki locks. 
 - ✅ Lock
 - ✅ Unlock
 - ✅ Open/Unlatch (fully opens the door)
-- ⚠️ Lock'n'Go (available in code, not exposed as service by default)
+- ⚠️  Lock'n'Go (available in code, not exposed as service by default)
+
+### What sensors are available?
+
+- 🔒 **Lock entity**: Shows lock state (locked/unlocked/locking/unlocking)
+- 🔋 **Battery sensor**: Shows battery percentage (0-100%)
+  - Includes `battery_critical` and `battery_charging` attributes
+  - Works with all Nuki lock models
+  - Newer models (Pro/Go/Ultra) show exact percentage
+  - Older models show estimated percentage based on critical flag
 
 ### Are states real-time?
 
-Not exactly. The integration polls every 30 seconds. This means:
-- There can be up to 30 seconds delay in seeing state changes
-- For real-time updates you'd need webhooks (Advanced Nuki API)
+Not exactly, but much faster than before. The integration works in two ways:
+
+1. **Regular polling**: Updates every 30 seconds automatically
+2. **Action-triggered updates**: When you lock/unlock/open:
+   - Immediate refresh (0s) - UI responds instantly
+   - Delayed refresh (3s) - Captures the final lock state
+
+This means after performing an action, you'll see the state update within 3-4 seconds instead of waiting up to 30 seconds.
+
+For true real-time updates you'd need webhooks (Advanced Nuki API).
 
 ### Can I change the update frequency?
 
@@ -51,7 +67,7 @@ Yes, edit the `__init__.py` file:
 SCAN_INTERVAL = timedelta(seconds=30)  # Change 30 to your value
 ```
 
-⚠️ Very low values (less than 10 seconds) can cause:
+⚠️  Very low values (less than 10 seconds) can cause:
 - Higher battery drain on the lock
 - Possible API rate limiting
 
@@ -125,6 +141,32 @@ Some API actions require **Nuki Smart Hosting** (Nuki's paid service).
 - Verify lock connection
 - Restart integration if it persists
 
+### Why does my battery sensor show an estimate instead of exact percentage?
+
+The battery sensor behavior depends on your Nuki lock model:
+
+**Newer models (Pro/Go/Ultra with Wi-Fi):**
+- Report exact battery percentage via `batteryChargeState`
+- Shows accurate 0-100% reading
+- Updates with each polling cycle
+
+**Older models (1.0/2.0 with Bridge):**
+- Only report `batteryCritical` boolean (true/false)
+- Integration estimates percentage:
+  - If critical: ~15%
+  - If not critical: ~80%
+- This is a limitation of the Nuki API for older models
+
+**All models provide:**
+- `battery_critical` attribute (boolean)
+- `battery_charging` attribute (for rechargeable battery models)
+
+### My battery sensor shows 80% but I just changed batteries
+
+This is normal for older Nuki models. Since they only report "critical" or "not critical," the integration estimates 80% when not critical. The percentage will update to ~15% only when the battery becomes actually critical.
+
+If you want to track battery changes more precisely, consider upgrading to a newer Nuki model (Pro/Go/Ultra) which reports exact percentages.
+
 ## Security
 
 ### Is it safe to use this integration?
@@ -136,7 +178,7 @@ Yes, but keep in mind:
 - Token stored encrypted in HA
 - No direct communication with lock (goes through Nuki servers)
 
-⚠️ **Considerations:**
+⚠️  **Considerations:**
 - Token gives FULL access to your locks
 - Depends on Nuki servers (if they're down, it doesn't work)
 - Requires Internet (additional point of failure)
@@ -185,7 +227,28 @@ Battery consumption depends on:
 - Number of actions performed
 - Wi-Fi/Bridge connection quality
 
+**State update strategy:**
+- Regular polling: Every 30 seconds
+- After actions: Immediate + 3 second delayed refresh
+- The delayed refresh doesn't significantly impact battery life
+
 **Compared to local Bridge:** May consume slightly more battery because the lock must maintain Wi-Fi or Bluetooth connection with Bridge that then connects to Internet.
+
+### Why does the state update twice after an action?
+
+This is intentional for better user experience:
+
+1. **Immediate refresh (0 s)**:
+   - Shows intermediate states like "locking" or "unlocking"
+   - UI responds instantly
+   - User knows the action was received
+
+2. **Delayed refresh (3 s)**:
+   - Captures the final state ("locked" or "unlocked")
+   - Nuki locks take 1-3 seconds to complete physical actions
+   - Ensures accurate final state display
+
+This double-refresh strategy provides the best balance between responsiveness and accuracy.
 
 ### Are there API limits?
 
@@ -217,13 +280,13 @@ Home Assistant 2023.7.0 or higher (for modern config_flow support)
 
 ### Does it work with all Nuki models?
 
-✅ Nuki Smart Lock 1.0 (with Bridge)
-✅ Nuki Smart Lock 2.0 (with Bridge)
-✅ Nuki Smart Lock 3.0 Pro (built-in Wi-Fi)
-✅ Nuki Smart Lock 4.0 Pro (built-in Wi-Fi)
-✅ Nuki Smart Lock Go (built-in Wi-Fi)
-✅ Nuki Smart Lock Ultra (built-in Wi-Fi)
-⚠️ Nuki Opener (not tested, should work)
+✅ Nuki Smart Lock 1.0 (with Bridge) - Estimated battery %
+✅ Nuki Smart Lock 2.0 (with Bridge) - Estimated battery %
+✅ Nuki Smart Lock 3.0 Pro (built-in Wi-Fi) - Exact battery %
+✅ Nuki Smart Lock 4.0 Pro (built-in Wi-Fi) - Exact battery %
+✅ Nuki Smart Lock Go (built-in Wi-Fi) - Exact battery %
+✅ Nuki Smart Lock Ultra (built-in Wi-Fi) - Exact battery %
+⚠️  Nuki Opener (not tested, should work) - Battery status varies
 
 ## Comparison with Other Integrations
 
@@ -231,16 +294,19 @@ Home Assistant 2023.7.0 or higher (for modern config_flow support)
 
 **Official Integration (core):**
 - ✅ Requires Bridge
-- ✅ Local control (faster)
+- ✅ Local control (faster - instant updates)
 - ✅ Doesn't require subscription
+- ✅ Webhooks support (real-time)
 - ❌ Doesn't work without Bridge
 - ❌ Doesn't work if Bridge loses connection
 
 **This integration (Web API):**
 - ✅ Doesn't require Bridge (on Pro/Go/Ultra models)
 - ✅ Works from anywhere with Internet
+- ✅ Fast state updates (immediate + 3s delayed)
+- ✅ Battery percentage sensor
 - ❌ Requires Smart Hosting (paid)
-- ❌ Slower (30s polling)
+- ❌ Polling-based (30s + action-triggered updates)
 - ❌ Depends on Internet
 
 ### Can I use both integrations?
