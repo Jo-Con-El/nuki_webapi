@@ -35,7 +35,7 @@ Yes, but usually not necessary. One integration can handle all your Nuki locks. 
 - ✅ Lock
 - ✅ Unlock
 - ✅ Open/Unlatch (fully opens the door)
-- ⚠️  Lock'n'Go (available in code, not exposed as service by default)
+- ✅ Lock'n'Go (unlocks/unlatches, then automatically re-locks after configured delay)
 
 ### What sensors are available?
 

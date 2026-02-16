@@ -8,7 +8,7 @@ Custom integration to control Nuki Smart Locks via the Nuki Web API (no Bridge o
 ✅ Support for multiple locks
 ✅ Real-time status (locked/unlocked)
 ✅ Fast state updates after actions (immediate + 3s delayed refresh)
-✅ Actions: lock, unlock, open (unlatch)
+✅ Actions: lock, unlock, open (unlatch), lock'n'go
 ✅ Battery level sensor with percentage
 ✅ Battery critical and charging status
 ✅ UI-based configuration
@@ -115,6 +115,20 @@ target:
 service: lock.open
 target:
   entity_id: lock.nuki_lock_12345678
+
+# Lock'n'Go - unlocks, waits, then automatically locks again
+service: nuki_webapi.lock_n_go
+target:
+  entity_id: lock.nuki_lock_12345678
+data:
+  unlatch: false  # Set to true to unlatch instead of unlock
+
+# Lock'n'Go with unlatch - fully opens, then automatically locks
+service: nuki_webapi.lock_n_go
+target:
+  entity_id: lock.nuki_lock_12345678
+data:
+  unlatch: true
 ```
 
 ### Automation Example
@@ -174,7 +188,7 @@ cards:
 ## Limitations
 
 - **Polling:** The integration updates state every 30 seconds. Actions trigger immediate refresh + delayed refresh (3s) for faster response.
-- **Advanced actions:** Lock'n'Go is available in code but not exposed as a service (can be added)
+- **Internet required:** Both Home Assistant and the Nuki lock must have Internet connectivity
 
 ## Performance Notes
 

@@ -91,7 +91,7 @@ automation:
           entity_id: lock.nuki_lock_12345678
 ```
 
-### 4. Open door when Ring detects known person
+### 4. Open door when Ring detects known person (using Lock'n'Go)
 
 ```yaml
 automation:
@@ -105,14 +105,14 @@ automation:
         entity_id: input_boolean.auto_unlock_visitors
         state: "on"
     action:
-      - service: lock.open
+      - service: nuki_webapi.lock_n_go
         target:
           entity_id: lock.nuki_lock_12345678
-      - delay:
-          seconds: 5
-      - service: lock.lock
-        target:
-          entity_id: lock.nuki_lock_12345678
+        data:
+          unlatch: true  # Fully opens the door
+      - service: notify.mobile_app
+        data:
+          message: "Door opened for visitor"
 ```
 
 ### 5. Lock when everyone leaves
@@ -134,7 +134,35 @@ automation:
           entity_id: lock.nuki_lock_12345678
 ```
 
-### 6. Low battery alert
+### 6. Delivery person access with Lock'n'Go
+
+```yaml
+automation:
+  - alias: "Allow delivery person with code"
+    trigger:
+      - platform: state
+        entity_id: input_text.delivery_code
+        to: "1234"
+    action:
+      - service: nuki_webapi.lock_n_go
+        target:
+          entity_id: lock.nuki_lock_12345678
+        data:
+          unlatch: false
+      - service: notify.mobile_app
+        data:
+          title: "📦 Delivery Access"
+          message: "Door unlocked for delivery person. Will auto-lock."
+      - delay:
+          seconds: 2
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.delivery_code
+        data:
+          value: ""
+```
+
+### 7. Low battery alert
 
 ```yaml
 automation:
@@ -268,7 +296,7 @@ cards:
   - type: markdown
     content: |
       # 🔐 Access Control
-      
+
   - type: horizontal-stack
     cards:
       - type: button
@@ -280,7 +308,7 @@ cards:
           service: lock.lock
           service_data:
             entity_id: lock.nuki_lock_12345678
-            
+
       - type: button
         entity: lock.nuki_lock_12345678
         name: Unlock
@@ -290,7 +318,7 @@ cards:
           service: lock.unlock
           service_data:
             entity_id: lock.nuki_lock_12345678
-            
+
       - type: button
         entity: lock.nuki_lock_12345678
         name: Open
@@ -300,7 +328,31 @@ cards:
           service: lock.open
           service_data:
             entity_id: lock.nuki_lock_12345678
-            
+
+  - type: horizontal-stack
+    cards:
+      - type: button
+        entity: lock.nuki_lock_12345678
+        name: Lock'n'Go
+        icon: mdi:lock-clock
+        tap_action:
+          action: call-service
+          service: nuki_webapi.lock_n_go
+          service_data:
+            entity_id: lock.nuki_lock_12345678
+            unlatch: false
+
+      - type: button
+        entity: lock.nuki_lock_12345678
+        name: Lock'n'Go + Unlatch
+        icon: mdi:door-open
+        tap_action:
+          action: call-service
+          service: nuki_webapi.lock_n_go
+          service_data:
+            entity_id: lock.nuki_lock_12345678
+            unlatch: true
+
   - type: entities
     entities:
       - entity: lock.nuki_lock_12345678

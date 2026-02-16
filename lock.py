@@ -5,9 +5,12 @@ import asyncio
 import logging
 from typing import Any
 
+import voluptuous as vol
+
 from homeassistant.components.lock import LockEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -25,13 +28,23 @@ async def async_setup_entry(
     data = hass.data[DOMAIN][config_entry.entry_id]
     coordinator = data["coordinator"]
     client = data["client"]
-    
+
     # Create entities for each smartlock found
     entities = []
     for smartlock in coordinator.data:
         entities.append(NukiLock(coordinator, client, smartlock))
-    
+
     async_add_entities(entities)
+
+    # Register platform services
+    platform = entity_platform.async_get_current_platform()
+    platform.async_register_entity_service(
+        "lock_n_go",
+        {
+            vol.Optional("unlatch", default=False): bool,
+        },
+        "async_lock_n_go",
+    )
 
 
 class NukiLock(CoordinatorEntity, LockEntity):
@@ -124,6 +137,15 @@ class NukiLock(CoordinatorEntity, LockEntity):
         """Open the door latch."""
         _LOGGER.debug("Unlatching Nuki lock %s", self._smartlock_id)
         await self._client.unlatch(self._smartlock_id)
+        # Immediate refresh
+        await self.coordinator.async_request_refresh()
+        # Schedule a delayed refresh in the background
+        self._schedule_delayed_refresh()
+
+    async def async_lock_n_go(self, unlatch: bool = False) -> None:
+        """Execute lock'n'go action."""
+        _LOGGER.debug("Lock'n'go on Nuki lock %s (unlatch=%s)", self._smartlock_id, unlatch)
+        await self._client.lock_n_go(self._smartlock_id, unlatch)
         # Immediate refresh
         await self.coordinator.async_request_refresh()
         # Schedule a delayed refresh in the background

@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-02-15
+
+### Added
+- 🚪 **Lock'n'Go service** for supported Nuki locks
+  - `nuki_webapi.lock_n_go` service now available
+  - Unlocks/unlatches the door and automatically re-locks after configured delay
+  - Optional `unlatch` parameter to fully open the door instead of just unlocking
+  - Follows same state refresh pattern (immediate + 3s delayed)
+  - Works with all Nuki locks that support Lock'n'Go feature
+  - Service properly registered as entity platform service
+  - Includes service definition in services.yaml for UI integration
+
+### Changed
+- 📚 Updated documentation with Lock'n'Go examples
+- 🎨 Enhanced Lovelace card examples with Lock'n'Go buttons
+- 📝 Updated FAQ to reflect Lock'n'Go availability
+
 ## [1.2.0] - 2026-02-15
 
 ### Added
