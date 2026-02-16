@@ -4,14 +4,14 @@ Custom integration to control Nuki Smart Locks via the Nuki Web API (no Bridge o
 
 ## Features
 
-✅ Control Nuki locks via Web API
-✅ Support for multiple locks
-✅ Real-time status (locked/unlocked)
-✅ Fast state updates after actions (immediate + 3s delayed refresh)
-✅ Actions: lock, unlock, open (unlatch), lock'n'go
-✅ Battery level sensor with percentage
-✅ Battery critical and charging status
-✅ UI-based configuration
+- Control Nuki locks via Web API
+- Support for multiple locks
+- Real-time status (locked/unlocked)
+- Fast state updates after actions (immediate + 3s delayed refresh)
+- Actions: lock, unlock, open (unlatch), lock'n'go
+- Battery level sensor with percentage
+- Battery critical and charging status
+- UI-based configuration
 
 ## Requirements
 
